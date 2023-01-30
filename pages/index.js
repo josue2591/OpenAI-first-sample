@@ -3,8 +3,10 @@ import { useState } from "react";
 import styles from "./index.module.css";
 
 export default function Home() {
-  const [animalInput, setAnimalInput] = useState("");
+  const [textInput, setTextInput] = useState("");
   const [result, setResult] = useState();
+  const [image, setImage] = useState();
+
 
   async function onSubmit(event) {
     event.preventDefault();
@@ -14,16 +16,16 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ animal: animalInput }),
+        body: JSON.stringify({ prompt: textInput }),
       });
 
       const data = await response.json();
       if (response.status !== 200) {
         throw data.error || new Error(`Request failed with status ${response.status}`);
       }
-
       setResult(data.result);
-      setAnimalInput("");
+      setImage(data.image);
+      setTextInput("");
     } catch(error) {
       // Consider implementing your own error handling logic here
       console.error(error);
@@ -32,27 +34,26 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div className={styles.wrapper}>
       <Head>
         <title>OpenAI Quickstart</title>
-        <link rel="icon" href="/dog.png" />
       </Head>
 
       <main className={styles.main}>
-        <img src="/dog.png" className={styles.icon} />
-        <h3>Name my pet</h3>
+        <h3>Playground</h3>
         <form onSubmit={onSubmit}>
-          <input
-            type="text"
-            name="animal"
-            placeholder="Enter an animal"
-            value={animalInput}
-            onChange={(e) => setAnimalInput(e.target.value)}
-          />
-          <input type="submit" value="Generate names" />
+          <textarea
+          name="prompt"
+          value={textInput}
+          onChange={(e) => setTextInput(e.target.value)}>
+          </textarea>
+          <input type="submit" value="Generate" />
         </form>
-        <div className={styles.result}>{result}</div>
       </main>
+      <sidebar className={styles.sidebar}>
+        <div className={styles.result}>{result}</div>
+        <img src={image} alt="This is the alt text"/>
+      </sidebar>
     </div>
   );
 }
